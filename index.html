@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZChords | Professional Gitar Akorları</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc; --surface: #ffffff; --primary: #0f172a; --accent: #2563eb;
+            --text: #1e293b; --sub: #64748b; --border: #e2e8f0; --radius: 16px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
+        
+        /* Navigasyon */
+        nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .nav-content { max-width: 1100px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 800; color: var(--primary); text-decoration: none; letter-spacing: -1.5px; cursor: pointer; }
+        .logo span { color: var(--accent); }
+
+        .auth-section { display: flex; gap: 12px; align-items: center; }
+
+        /* Container & Views */
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; min-height: 70vh; }
+        .view { display: none; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
+        .view.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* Header Styles */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; flex-wrap: wrap; gap: 20px; }
+        h1 { font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
+
+        /* Song Cards */
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .song-card { background: var(--surface); padding: 28px; border-radius: var(--radius); border: 1px solid var(--border); transition: 0.3s; cursor: pointer; position: relative; }
+        .song-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1); }
+        
+        .fav-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.4rem; cursor: pointer; transition: 0.2s; filter: grayscale(1); opacity: 0.3; }
+        .fav-btn.active { filter: grayscale(0); opacity: 1; }
+
+        /* Buttons */
+        .btn { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+        .btn-social { width: 100%; justify-content: center; background: white; border: 1px solid var(--border); margin-bottom: 10px; font-weight: 500; }
+        .btn-social img { width: 18px; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 440px; padding: 40px; border-radius: 24px; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        
+        .modal-footer { margin-top: 25px; text-align: center; border-top: 1px solid var(--border); padding-top: 20px; font-size: 0.9rem; color: var(--sub); }
+        .modal-footer a { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
+
+        input, textarea { width: 100%; padding: 14px; margin: 8px 0 16px 0; border: 1px solid var(--border); border-radius: 12px; background: #f8fafc; font-family: inherit; box-sizing: border-box; font-size: 1rem; }
+        input:focus { outline: none; border-color: var(--accent); background: white; }
+        
+        /* Chords View */
+        pre { font-family: 'JetBrains Mono', monospace; line-height: 2.6; white-space: pre-wrap; font-size: 1.15rem; color: var(--text); padding: 30px; background: #ffffff; border: 1px solid var(--border); border-radius: 20px; }
+        .chord { color: #e11d48; font-weight: 700; background: rgba(225, 29, 72, 0.05); padding: 2px 4px; border-radius: 4px; }
+
+        .badge { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 8px; text-transform: uppercase; background: #f1f5f9; }
+
+        footer { text-align: center; padding: 60px 0; color: var(--sub); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-content">
+        <div class="logo" onclick="showView('home-view')">AZ<span>Chords</span></div>
+        <div class="auth-section" id="nav-auth">
+            <button class="btn btn-outline" onclick="openModal('loginModal')">Giriş</button>
+            <button class="btn btn-primary" onclick="openModal('registerModal')">Qeydiyyat</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    
+    <!-- HOME VIEW -->
+    <div id="home-view" class="view active">
+        <div class="page-header">
+            <h1>Mahnıları Kəşf Et</h1>
+            <div style="display:flex; gap:12px;">
+                <button class="btn btn-outline" id="fav-btn-nav" style="display:none;" onclick="showView('favorites-view')">❤️ Favorilər</button>
+                <button class="btn btn-primary" onclick="checkAuthAndOpenAdd()">+ Mahnı Əlavə Et</button>
+            </div>
+        </div>
+        <div id="song-grid" class="song-grid"></div>
+    </div>
+
+    <!-- FAVORITES VIEW -->
+    <div id="favorites-view" class="view">
+        <div class="page-header">
+            <h1>Favorilərim</h1>
+            <button class="btn btn-outline" onclick="showView('home-view')">← Geri</button>
+        </div>
+        <div id="fav-grid" class="song-grid"></div>
+    </div>
+
+    <!-- DETAIL VIEW -->
+    <div id="detail-view" class="view">
+        <button class="btn btn-outline" onclick="showView('home-view')" style="margin-bottom:30px;">← Siyahıya qayıt</button>
+        <div id="song-viewer"></div>
+    </div>
+
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <h2 style="margin:0 0 10px 0; font-size:1.8rem;">Giriş Et</h2>
+        <p style="color:var(--sub); margin-bottom:25px;">Sizə özəl repertuar yaratmaq üçün daxil olun.</p>
+        
+        <button class="btn btn-social" onclick="alert('Tezliklə...')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Google ilə giriş
+        </button>
+        
+        <div style="text-align:center; margin:15px 0; font-size:0.8rem; color:var(--sub);">və ya email ilə</div>
+
+        <input type="email" id="loginEmail" placeholder="Email ünvanınız">
+        <input type="password" id="loginPass" placeholder="Şifrəniz">
+        <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;" onclick="login()">Daxil Ol</button>
+        
+        <div class="modal-footer">
+            Siz hələ də qeydiyyatdan keçməmisiniz? <br>
+            <a onclick="closeModal('loginModal'); openModal('registerModal')">Yeni hesab yarat</a>
+        </div>
+        <button class="btn" style="width:100%; justify-content:center; margin-top:10px; color:var(--sub);" onclick="closeModal('loginModal')">Bağla</button>
+    </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div id="registerModal" class="modal">
+    <div class="modal-content">
+        <h2 style="margin:0 0 10px 0;">Qeydiyyat</h2>
+        <p style="color:var(--sub); margin-bottom:25px;">AZChords-da öz yerini tut.</p>
+        
+        <input type="text" id="regName" placeholder="Ad və Soyad">
+        <input type="email" id="regEmail" placeholder="Email ünvanı">
+        <input type="password" id="regPass" placeholder="Şifrə təyin edin">
+        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="register()">Qeydiyyatı Tamamla</button>
+        
+        <div class="modal-footer">
+            Artıq hesabınız var? <a onclick="closeModal('registerModal'); openModal('loginModal')">Giriş edin</a>
+        </div>
+        <button class="btn" style="width:100%; justify-content:center; margin-top:10px; color:var(--sub);" onclick="closeModal('registerModal')">Bağla</button>
+    </div>
+</div>
+
+<!-- ADD SONG MODAL -->
+<div id="addModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <h2>Yeni Mahnı Əlavə Et</h2>
+        <input type="text" id="songTitle" placeholder="Mahnı adı">
+        <input type="text" id="songArtist" placeholder="Sənətçi adı">
+        <div style="display:flex; gap:10px">
+            <input type="number" id="songCapo" placeholder="Kapo">
+            <input type="text" id="songTon" placeholder="Orijinal Ton">
+        </div>
+        <textarea id="songChords" placeholder="Akorları mötərizədə yazın: [Am] Sözlər..."></textarea>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitSong()">Yoxlanışa Göndər</button>
+        <button class="btn" style="width:100%; justify-content:center; margin-top:10px; color:var(--sub);" onclick="closeModal('addModal')">Ləğv et</button>
+    </div>
+</div>
+
+<footer>
+    &copy; 2024 AZChords Professional. Musiqi ruhun qidasıdır.
+</footer>
+
+<script>
+    // --- DATABASE ---
+    let users = JSON.parse(localStorage.getItem('azUsers_v3')) || [
+        { email: 'admin@azchords.com', pass: '123456', role: 'admin', name: 'Admin', favs: [] }
+    ];
+    let currentUser = JSON.parse(localStorage.getItem('azCurrentUser_v3')) || null;
+    let songs = JSON.parse(localStorage.getItem('azSongs_v3')) || [];
+
+    function init() {
+        updateAuthUI();
+        renderSongs();
+    }
+
+    // --- VIEW MANAGEMENT ---
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => {
+            v.classList.remove('active');
+            v.style.opacity = '0';
+        });
+        const target = document.getElementById(viewId);
+        target.classList.add('active');
+        setTimeout(() => target.style.opacity = '1', 50);
+        
+        if(viewId === 'favorites-view') renderFavorites();
+        window.scrollTo(0,0);
+    }
+
+    // --- AUTH ---
+    function register() {
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPass').value;
+        if(!name || !email || !pass) return alert("Bütün xanaları doldurun!");
+        if(users.find(u => u.email === email)) return alert("Bu email artıq mövcuddur.");
+        
+        users.push({ name, email, pass, role: 'user', favs: [] });
+        localStorage.setItem('azUsers_v3', JSON.stringify(users));
+        alert("Qeydiyyat uğurludur!");
+        closeModal('registerModal');
+        openModal('loginModal');
+    }
+
+    function login() {
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPass').value;
+        const user = users.find(u => u.email === email && u.pass === pass);
+        if(user) {
+            currentUser = user;
+            localStorage.setItem('azCurrentUser_v3', JSON.stringify(currentUser));
+            location.reload();
+        } else alert("Məlumatlar yanlışdır!");
+    }
+
+    function logout() {
+        localStorage.removeItem('azCurrentUser_v3');
+        location.reload();
+    }
+
+    function updateAuthUI() {
+        if(currentUser) {
+            document.getElementById('nav-auth').innerHTML = `
+                <div style="text-align:right; margin-right:10px;">
+                    <div style="font-weight:700; font-size:0.9rem;">${currentUser.name}</div>
+                    <div style="font-size:0.7rem; color:var(--accent); cursor:pointer" onclick="logout()">Çıxış et</div>
+                </div>
+            `;
+            document.getElementById('fav-btn-nav').style.display = 'inline-flex';
+        }
+    }
+
+    function checkAuthAndOpenAdd() {
+        if(!currentUser) {
+            alert("Mahnı əlavə etmək üçün öncə giriş etməlisiniz!");
+            openModal('loginModal');
+        } else {
+            openModal('addModal');
+        }
+    }
+
+    // --- CORE ---
+    function renderSongs() {
+        const grid = document.getElementById('song-grid');
+        grid.innerHTML = '';
+        const approvedSongs = songs.filter(s => s.status === 'approved' || (currentUser && s.author === currentUser.email));
+        
+        approvedSongs.forEach(song => {
+            const isFav = currentUser && currentUser.favs.includes(song.id);
+            const card = document.createElement('div');
+            card.className = 'song-card';
+            card.onclick = () => viewSong(song.id);
+            card.innerHTML = `
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, ${song.id})">❤️</button>
+                <div class="badge">${song.status === 'pending' ? 'Yoxlanışda' : song.ton}</div>
+                <h3 style="margin:15px 0 5px 0; font-size:1.4rem;">${song.title}</h3>
+                <p style="margin:0; color:var(--sub)">${song.artist}</p>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderFavorites() {
+        const grid = document.getElementById('fav-grid');
+        grid.innerHTML = '';
+        const favs = songs.filter(s => currentUser.favs.includes(s.id));
+        if(favs.length === 0) grid.innerHTML = '<p>Favori mahnınız yoxdur.</p>';
+        favs.forEach(song => {
+            const card = document.createElement('div');
+            card.className = 'song-card';
+            card.onclick = () => viewSong(song.id);
+            card.innerHTML = `<h3>${song.title}</h3><p>${song.artist}</p>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function toggleFavorite(e, id) {
+        e.stopPropagation();
+        if(!currentUser) return openModal('loginModal');
+        const idx = currentUser.favs.indexOf(id);
+        if(idx > -1) currentUser.favs.splice(idx, 1);
+        else currentUser.favs.push(id);
+        
+        // Sync with users list
+        const dbUser = users.find(u => u.email === currentUser.email);
+        dbUser.favs = currentUser.favs;
+        localStorage.setItem('azUsers_v3', JSON.stringify(users));
+        localStorage.setItem('azCurrentUser_v3', JSON.stringify(currentUser));
+        renderSongs();
+    }
+
+    function submitSong() {
+        const title = document.getElementById('songTitle').value;
+        const artist = document.getElementById('songArtist').value;
+        const content = document.getElementById('songChords').value;
+        if(!title || !artist || !content) return alert("Məlumatları doldurun!");
+
+        const song = {
+            id: Date.now(), title, artist,
+            capo: document.getElementById('songCapo').value || 0,
+            ton: document.getElementById('songTon').value || 'Am',
+            content,
+            status: (currentUser.role === 'admin' ? 'approved' : 'pending'),
+            author: currentUser.email
+        };
+        songs.push(song);
+        localStorage.setItem('azSongs_v3', JSON.stringify(songs));
+        alert("Göndərildi!");
+        location.reload();
+    }
+
+    function viewSong(id) {
+        const song = songs.find(s => s.id === id);
+        const viewer = document.getElementById('song-viewer');
+        const formatted = song.content.replace(/\[(.*?)\]/g, '<span class="chord">$1</span>');
+        viewer.innerHTML = `
+            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border)">
+                ${song.capo > 0 ? `<span class="badge" style="background:#fef3c7; color:#92400e; margin-bottom:15px; display:inline-block">Kapo: ${song.capo}</span>` : ''}
+                <h1 style="font-size:3rem; margin-bottom:10px;">${song.title}</h1>
+                <p style="font-size:1.3rem; color:var(--sub); margin:0 0 30px 0">${song.artist} • ${song.ton}</p>
+                <pre>${formatted}</pre>
+            </div>
+        `;
+        showView('detail-view');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    init();
+</script>
+</body>
+</html>
